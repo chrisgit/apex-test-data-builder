@@ -2,13 +2,15 @@
 public with sharing class TestDataObjectTests {
 
     @IsTest
-    public static void whenCreateParentAndAddChildThenObjectsLinked() {
+    public static void whenCreateAccountAndOpportunityAndContactThenObjectsLinked() {
         AccountTdo account = new AccountTdo();
         OpportunityTdo opportunity = new OpportunityTdo();
         ContactTdo contact = new ContactTdo();
         account.contact(contact).opportunity(opportunity);
 
+        Test.startTest();
         TestDataRegistry.simpleInsert(new Set<TestDataObject> { account, contact, opportunity });
+        Test.stopTest();
 
         List<Account> accounts = [SELECT Id, Name, (SELECT Id, Name FROM Opportunities), (SELECT Id, Name FROM Contacts) FROM Account];
         System.assertEquals(1, accounts.size(), 'Number of accounts not correct');
@@ -19,12 +21,14 @@ public with sharing class TestDataObjectTests {
     }
 
     @IsTest
-    public static void whenCreateChildAndLinkToParentThenObjectsLinked() {
+    public static void whenCreateOpportunityAndContactLinkToAccountThenObjectsLinked() {
         AccountTdo account = new AccountTdo();
         OpportunityTdo opportunity = new OpportunityTdo().account(account);
         ContactTdo contact = new ContactTdo().account(account);
 
+        Test.startTest();
         TestDataRegistry.simpleInsert(new Set<TestDataObject> { account, opportunity, contact });
+        Test.stopTest();
 
         List<Account> accounts = [SELECT Id, Name, (SELECT Id, Name FROM Opportunities), (SELECT Id, Name FROM Contacts) FROM Account];
         System.assertEquals(1, accounts.size(), 'Number of accounts not correct');
@@ -35,7 +39,7 @@ public with sharing class TestDataObjectTests {
     }
 
     @IsTest
-    public static void whenCreatingSingleParentMultipleChildrenThenParentAndChildrenCreated() {
+    public static void whenCreatingAccountWithMultipleLinkedObjectsThenAccountAndObjectsLinked() {
         Integer numberOfChildRecords = 100;
         AccountTdo account = new AccountTdo().name('Single Account');
         Set<TestDataObject> testObjects = new Set<TestDataObject> { account };
@@ -46,7 +50,9 @@ public with sharing class TestDataObjectTests {
                             .email(childCounter+'@'+childCounter+'.com').account(account));
         }
 
+        Test.startTest();
         TestDataRegistry.simpleInsert(testObjects);
+        Test.stopTest();
 
         List<Account> accounts = [SELECT Id, Name, (SELECT Id, Name FROM Opportunities), (SELECT Id, Name FROM Contacts) FROM Account];
         System.assertEquals(1, accounts.size(), 'Number of accounts not correct');
@@ -58,7 +64,7 @@ public with sharing class TestDataObjectTests {
 
     // Note: When you have the Developer Console open these "bulk" tests run very slowly due to SF writing to the log
     @IsTest
-    public static void whenCreatingMultipleParentMultipleChildrenThenParentAndChildrenCreated() {
+    public static void whenCreatingMultipleAccountsAndMultipleLinkedObjectsThenAccountsAndObjectsLinked() {
         Integer numberOfAccountRecords = 30;
         Integer numberOfOpportunityRecordsPerAccount = 10;
         Integer numberOfContactRecordsPerAccount = 10;
@@ -76,7 +82,9 @@ public with sharing class TestDataObjectTests {
             }
         }
 
+        Test.startTest();
         TestDataRegistry.simpleInsert(testObjects);
+        Test.stopTest();
 
         List<Account> accounts = [SELECT Id, Name, (SELECT Id, Name FROM Opportunities), (SELECT Id, Name FROM Contacts) FROM Account];
         System.assertEquals(numberOfAccountRecords, accounts.size(), 'Number of accounts not correct');

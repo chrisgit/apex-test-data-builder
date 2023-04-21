@@ -69,7 +69,7 @@ public with sharing class Namepointing {
             return cachedParentRelationships.get(type);
         }
 
-        DescribeSObjectResult objectResult = Opportunity.SObjectType.getDescribe();
+        DescribeSObjectResult objectResult = type.getDescribe();
         Map<String, SObjectField> objectFields = objectResult.fields.getMap();
         Map<String, String> parentFields = new Map<String, String>();
         for(SObjectField fld : objectFields.values()) {
